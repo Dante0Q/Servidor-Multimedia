@@ -1,0 +1,71 @@
+version: '3.8'
+
+services:
+  flaresolverr:
+    image: ghcr.io/flaresolverr/flaresolverr:latest
+    container_name: flaresolverr
+    environment:
+      - LOG_LEVEL=info
+      - LOG_HTML=false
+      - CAPTCHA_SOLVER=none
+      - TZ=America/Argentina/Buenos_Aires
+    ports:
+      - 8191:8191
+    networks:
+      - multimedia-net
+    restart: unless-stopped
+
+  prowlarr:
+    image: lscr.io/linuxserver/prowlarr:latest
+    container_name: prowlarr
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=America/Argentina/Buenos_Aires
+    volumes:
+      - ./prowlarr-config:/config
+    ports:
+      - 9696:9696
+    networks:
+      - multimedia-net
+    restart: unless-stopped
+    depends_on:
+      - flaresolverr
+
+  qbittorrent:
+    image: lscr.io/linuxserver/qbittorrent:latest
+    container_name: qbittorrent
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=America/Argentina/Buenos_Aires
+      - WEBUI_PORT=8085
+    volumes:
+      - /opt/multimedia/qbittorrent:/config
+      - /data:/data
+    ports:
+      - 8085:8085
+      - 53421:53421
+      - 53421:53421/udp
+    networks:
+      - multimedia-net
+    restart: unless-stopped
+
+  cross-seed:
+    image: ghcr.io/cross-seed/cross-seed:latest
+    container_name: cross-seed
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=America/Argentina/Buenos_Aires
+    volumes:
+      - /opt/multimedia/cross-seed:/config
+      - /data:/data
+    networks:
+      - multimedia-net
+    restart: unless-stopped
+    command: daemon
+
+networks:
+  multimedia-net:
+    external: true

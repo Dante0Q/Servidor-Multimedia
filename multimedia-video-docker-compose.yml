@@ -1,0 +1,82 @@
+services:
+  radarr:
+    image: lscr.io/linuxserver/radarr:latest
+    container_name: radarr
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=America/Argentina/Buenos_Aires
+    volumes:
+      - ./radarr-config:/config
+      - /data:/data
+    ports:
+      - 7878:7878
+    networks:
+      - multimedia-net
+    restart: unless-stopped
+
+  sonarr:
+    image: lscr.io/linuxserver/sonarr:latest
+    container_name: sonarr
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=America/Argentina/Buenos_Aires
+    volumes:
+      - ./sonarr-config:/config
+      - /data:/data
+    ports:
+      - 8989:8989
+    networks:
+      - multimedia-net
+    restart: unless-stopped
+
+  bazarr:
+    image: lscr.io/linuxserver/bazarr:latest
+    container_name: bazarr
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=America/Argentina/Buenos_Aires
+    volumes:
+      - ./bazarr-config:/config
+      - /data/media:/data/media
+    ports:
+      - 6767:6767
+    networks:
+      - multimedia-net
+    restart: unless-stopped
+
+  jellyfin:
+    image: lscr.io/linuxserver/jellyfin:latest
+    container_name: jellyfin
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=America/Argentina/Buenos_Aires
+    volumes:
+      - ./jellyfin-config:/config
+      - /data/media:/data/media
+    ports:
+      - 8096:8096
+    networks:
+      - multimedia-net
+    restart: unless-stopped
+
+  jellyseerr:
+    image: fallenbagel/jellyseerr:latest
+    container_name: jellyseerr
+    environment:
+      - LOG_LEVEL=info
+      - TZ=America/Argentina/Buenos_Aires
+    volumes:
+      - ./jellyseerr-config:/app/config
+    ports:
+      - 5055:5055
+    networks:
+      - multimedia-net
+    restart: unless-stopped
+
+networks:
+  multimedia-net:
+    external: true
